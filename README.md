@@ -17,6 +17,6 @@ The serial interface is used for uploading the code to the MCU using Urboot
 bootloader, and is used for a serial console to enter some commands: 'x' to start
 animation, 't' to test the likelihood of all possible numbers and show them on the display.
 
-External libraries used: FastLED, SoftI2CMaster
+External libraries used: FastLED, SoftI2CMaster<br>
 
-<img width="2016" height="1512" alt="Dice" src="https://github.com/user-attachments/assets/f6a35d9e-c403-4286-a875-66078052467a" />
+<img width="640" height="480" alt="Dice" src="https://github.com/user-attachments/assets/292bad00-3598-446f-a269-5408f2428275" />
