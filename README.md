@@ -10,14 +10,11 @@ additional animations are used to emphasize some values, especially when the gam
 Numbers 6 and 8: Very good values, Number 7: special number
 
 The circuit uses these hardware components:
-MCU ATtiny 85
-NeoPixel Ring 24 LEDs
-7-segment display with I2C-controller (Adafruit)
-Button to start animation
+MCU ATtiny 85, NeoPixel Ring 24 LEDs, 7-segment display with I2C-controller (Adafruit),
+push button to start animation.
 
 The serial interface is used for uploading the code to the MCU using Urboot
-bootloader, and is used to enter some commands: 'x' to start animation,
-'t' to test the likelihood of all possible numbers and show them on the display.
+bootloader, and is used for a serial console to enter some commands: 'x' to start
+animation, 't' to test the likelihood of all possible numbers and show them on the display.
 
-External libraries used:
-FastLED, SoftI2CMaster
+External libraries used: FastLED, SoftI2CMaster
