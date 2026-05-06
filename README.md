@@ -6,7 +6,7 @@ For visualization a NeoPixel ring with 24 NeoPixel-LEDs is used.
 Additionally a 7-segemnt display shows the result.
 During rolling the dices, an animation shows the progress. Dependend on the result,
 additional animations are used to emphasize some values, especially when the game
-"Siedler von Catan" is played.
+"CATAN" is played. https://www.catan.com/catan<br>
 Numbers 6 and 8: Very good values, Number 7: special number. This can be customized
 in the code to adapt to various games.
 
