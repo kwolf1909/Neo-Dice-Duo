@@ -7,7 +7,8 @@ Additionally a 7-segemnt display shows the result.
 During rolling the dices, an animation shows the progress. Dependend on the result,
 additional animations are used to emphasize some values, especially when the game
 "Siedler von Catan" is played.
-Numbers 6 and 8: Very good values, Number 7: special number
+Numbers 6 and 8: Very good values, Number 7: special number. This can be customized
+in the code to adapt to various games.
 
 The circuit uses these hardware components:
 MCU ATtiny 85, NeoPixel ring 24 LEDs, 7-segment display with I2C-controller (Adafruit),
