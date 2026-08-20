@@ -1,5 +1,5 @@
 # Neo-Dice-Duo
-Electronic Dice based on NeoPixel ring and MCU ATtiny 85.
+Electronic Dice based on NeoPixel ring and MCU ATtiny 85 or ATtiny 814/1614.
 
 The eletronic dice shows two dices to get a random number between 2 and 12.
 For visualization a NeoPixel ring with 24 NeoPixel-LEDs is used.
@@ -18,8 +18,8 @@ The serial interface is used for uploading the code to the MCU using Urboot
 bootloader, and is used for a serial console to enter some commands: 'x' to start
 animation, 't' to test the likelihood of all possible numbers and show them on the display.
 
-External libraries used: FastLED, SoftI2CMaster<br>
+Libraries used: tinyNeoPixel (built into TinyCore and MegaTinyCore)
 
-Compiled with TinyCore, and uses ~90 % of available flash space.
+Compiled with TinyCore (MCUDude), uses ~88 % of available flash space (ATtiny 85).
 
 <img width="640" height="480" alt="Dice" src="https://github.com/user-attachments/assets/292bad00-3598-446f-a269-5408f2428275" />
