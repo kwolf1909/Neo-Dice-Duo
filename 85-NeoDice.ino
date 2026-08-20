@@ -1,25 +1,4 @@
-#define WIRE
-//#define TINYWIREM
-//#define TINYI2C
-//#define SOFTWIRE
-
-#ifdef TINYWIREM
-#include <TinyWireM.h>
-#endif
-#ifdef TINYI2C
-#include <TinyI2CMaster.h>
-#endif
-#ifdef SOFTWIRE
-#define SDA_PORT PORTB
-#define SDA_PIN 3
-#define SCL_PORT PORTB
-#define SCL_PIN 4
-#define I2C_FASTMODE 1
-#include <SoftWire.h>
-#endif
-#ifdef WIRE
 #include <Wire.h>
-#endif
 #include <tinyNeoPixel.h>
 //#define SEG14
 #include "AlphaDisplay.h"
@@ -30,11 +9,7 @@
 #define BUTTON_PIN          3
 #define DATA_PIN            4
 #endif
-#if defined (__AVR_ATmega328P__)
-#define BUTTON_PIN          2
-#define DATA_PIN            A3
-#endif
-#if defined (__AVR_ATtiny1614__)
+#if defined (__AVR_ATtiny814__) || defined (__AVR_ATtiny1614__)
 #define BUTTON_PIN          3
 #define DATA_PIN            PIN_PA4
 #define VIO_PIN             2
@@ -132,7 +107,7 @@ void setup() {
 #endif
 
   // set IO-level for alphanumeric display
-#if defined(__AVR_ATtiny1614__)
+#if (__AVR_ATtiny814__) || defined(__AVR_ATtiny1614__)
   PORTB.DIRSET = 1 << VIO_PIN;
   PORTB.OUTSET = 1 << VIO_PIN;
 #endif
@@ -142,7 +117,7 @@ void setup() {
   alpha.print("IN IT");
 
   // button input pin with pullup enabled
-#if defined (__AVR_ATtiny1614__)
+#if (__AVR_ATtiny814__) || defined (__AVR_ATtiny1614__)
   PORTA.DIRCLR = 1 << BUTTON_PIN;
   PORTA.PIN3CTRL = PORT_PULLUPEN_bm;
 #endif
