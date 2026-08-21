@@ -30,37 +30,6 @@ const uint8_t PROGMEM segs7[64] = {
 };
 #endif
 
-// wrapper functions for TinyI2CMaster, TinyWireM or Wire
-void wireBegin(uint8_t addr) {
-#if defined(TINYI2C)
-  TinyI2C.start(addr, 0);
-#elif defined(TINYWIREM)
-  TinyWireM.beginTransmission(addr);
-#else
-  Wire.beginTransmission(addr);
-#endif
-}
-
-void wireWrite(uint8_t data) {
-#if defined(TINYI2C)
-  TinyI2C.write(data);
-#elif defined(TINYWIREM)
-  TinyWireM.send(data);
-#else
-  Wire.write(data);
-#endif
-}
-
-void wireEnd(void) {
-#if defined(TINYI2C)
-  TinyI2C.stop();
-#elif defined(TINYWIREM)
-  TinyWireM.endTransmission();
-#else
-  Wire.endTransmission();
-#endif
-}
-
 class AlphaDisplay {
   public:
     void init(uint8_t, uint8_t, uint8_t);
@@ -69,6 +38,9 @@ class AlphaDisplay {
     void clear();
   private:
     void send(uint8_t);
+    void wireBegin(uint8_t);
+    void wireWrite(uint8_t);
+    void wireEnd();
     uint8_t cur = 0;
     uint8_t address;
     uint8_t numDigits;
@@ -177,4 +149,35 @@ void AlphaDisplay::write(uint8_t c) {
     clear();
   }
   return;
+}
+
+// wrapper functions for TinyI2CMaster, TinyWireM or Wire
+void AlphaDisplay::wireBegin(uint8_t addr) {
+#if defined(TINYI2C)
+  TinyI2C.start(addr, 0);
+#elif defined(TINYWIREM)
+  TinyWireM.beginTransmission(addr);
+#else
+  Wire.beginTransmission(addr);
+#endif
+}
+
+void AlphaDisplay::wireWrite(uint8_t data) {
+#if defined(TINYI2C)
+  TinyI2C.write(data);
+#elif defined(TINYWIREM)
+  TinyWireM.send(data);
+#else
+  Wire.write(data);
+#endif
+}
+
+void AlphaDisplay::wireEnd(void) {
+#if defined(TINYI2C)
+  TinyI2C.stop();
+#elif defined(TINYWIREM)
+  TinyWireM.endTransmission();
+#else
+  Wire.endTransmission();
+#endif
 }
