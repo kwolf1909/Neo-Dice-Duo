@@ -20,6 +20,6 @@ animation, 't' to test the likelihood of all possible numbers and show them on t
 
 Libraries used: tinyNeoPixel (built into TinyCore and MegaTinyCore)
 
-Compiled with TinyCore (MCUDude), uses ~88 % of available flash space (ATtiny 85).
+Compiled with TinyCore (MCUDude), uses ~90 % of available flash space (ATtiny 85).
 
 <img width="640" height="480" alt="Dice" src="https://github.com/user-attachments/assets/292bad00-3598-446f-a269-5408f2428275" />
