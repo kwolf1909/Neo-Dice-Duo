@@ -18,14 +18,14 @@
 #define COLOR_ORDER         GRB
 #define NUM_LEDS            24
 #define BRIGHTNESS          32
-#define FRAMES_PER_SECOND   50
 #define FADE_STEPS          32
 #define PATTERN_LENGTH      12
 #define NUM_TEST            1000
 #define DISPLAY_ADDRESS     0x70
 #define DISPLAY_DIGITS      5
 #define DISPLAY_BRIGHTNESS  8
-#define ANIMATION_DELAY     25
+#define ANIMATION_DELAY     25L
+#define IDLE_DELAY          2*60*1000L
 #define DIVIDER_RUNNING     2
 #define DIVIDER_SLOWDOWN1   4
 #define DIVIDER_SLOWDOWN2   8
@@ -36,7 +36,7 @@
 bool     waitForFirstZero, toggle;
 uint8_t  state, result1, result2, fade, pos1, pos2, sum, divider, dividerRandom, fadeCounter;
 uint16_t hue;
-uint32_t currentTime, animationTime, zeroTime;
+uint32_t currentTime, animationTime, idleTime, zeroTime;
 
 struct dicePattern {
   uint8_t startPos;
@@ -98,20 +98,13 @@ void setup() {
   delay(100);
 #endif
 
-#if defined (TINYWIREM)
-  TinyWireM.begin();
-#elif defined (TINYI2C)
-  TinyI2C.init();
-#else
-  Wire.begin();
-#endif
-
   // set IO-level for alphanumeric display
 #if (__AVR_ATtiny814__) || defined(__AVR_ATtiny1614__)
   PORTB.DIRSET = 1 << VIO_PIN;
   PORTB.OUTSET = 1 << VIO_PIN;
 #endif
 
+  Wire.begin();
   delay(100);
   alpha.init(DISPLAY_ADDRESS, DISPLAY_DIGITS, DISPLAY_BRIGHTNESS);
   alpha.print("IN IT");
@@ -136,19 +129,19 @@ void setup() {
   uint32_t color;
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
     color = ring.ColorHSV(hue, 255, 255);
+    hue += 65536 / NUM_LEDS;
     ring.clear();
     ring.setPixelColor(i, color);
-    hue += 32768 / NUM_LEDS;
     ring.show();
     delay(ANIMATION_DELAY * 2);
   }
   ring.clear();
   ring.show();
 
-  alpha.clear();
+  alpha.print("--   ");
 
   hue = 0;
-  animationTime = millis();
+  animationTime = idleTime = millis();
   state = DICE_INIT;
 }
 
@@ -157,8 +150,8 @@ void setup() {
 void loop()
 {
   currentTime = millis();
-  if (currentTime - animationTime > ANIMATION_DELAY) {
-    animationTime = currentTime;
+  if (currentTime >= animationTime) {
+    animationTime += ANIMATION_DELAY;
 
     switch (state) {
       case DICE_INIT:
@@ -180,6 +173,7 @@ void loop()
           state = DICE_RUNNING;
           zeroTime = millis();
           waitForFirstZero = true;
+          idleTime = currentTime + IDLE_DELAY;
           divider = 0;
         }
 #ifdef SERIALDEBUG
@@ -190,6 +184,7 @@ void loop()
             state = DICE_RUNNING;
             zeroTime = millis();
             waitForFirstZero = true;
+            idleTime = currentTime + IDLE_DELAY;
             divider = 0;
           }
           if (c == 't') state = DICE_TEST;
@@ -199,65 +194,12 @@ void loop()
         if (dividerRandom++ == 0) random(2, 13);
         if (dividerRandom >= DIVIDER_RANDOM) dividerRandom = 0;
 
-        // animation
         if (!result1 || !result2) break;
 
-        switch (sum) {
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-            break;
-
-          case 6:
-          case 8:
-            if (fade) {
-              addGlitter(30);
-              fadeToBlack(16);
-              printDice(result1, PATTERN_LENGTH, 0, colorCyan);
-              printDice(result2, PATTERN_LENGTH, PATTERN_LENGTH, colorGreen);
-              fade--;
-            }
-            else {
-              fade = FADE_STEPS;
-            }
-            ring.show();
-
-            if (divider++ == 0) {
-              showVal(sum, toggle);
-              toggle = !toggle;
-            }
-            if (divider >= DIVIDER_FLASH68) divider = 0;
-            break;
-
-          case 7:
-            if (fade) {
-              fadeToBlack(16);
-              fade--;
-            }
-            else {
-              printDice(result1, PATTERN_LENGTH, 0, colorYellow);
-              printDice(result2, PATTERN_LENGTH, PATTERN_LENGTH, colorYellow);
-              fade = FADE_STEPS;
-            }
-            ring.show();
-
-            if (divider++ == 0) {
-              showVal(sum, toggle);
-              toggle = !toggle;
-            }
-            if (divider >= DIVIDER_FLASH7) divider = 0;
-            break;
-
-          case 9:
-          case 10:
-          case 11:
-          case 12:
-            break;
-
-          default:
-            break;
-        }
+        // animation for specific results
+        handleAnimation();
+        
+        if (currentTime > idleTime) state = DICE_CONFETTI;
         break;
 
       case DICE_RUNNING:
@@ -373,6 +315,53 @@ void loop()
 
 //---------------------------------------------------------------------------------
 
+void handleAnimation() {
+  switch (sum) {
+    case 6:
+    case 8:
+      if (fade) {
+        addGlitter(30);
+        fadeToBlack(16);
+        printDice(result1, PATTERN_LENGTH, 0, colorCyan);
+        printDice(result2, PATTERN_LENGTH, PATTERN_LENGTH, colorGreen);
+        fade--;
+      }
+      else {
+        fade = FADE_STEPS;
+      }
+      ring.show();
+
+      if (divider++ == 0) {
+        showVal(sum, toggle);
+        toggle = !toggle;
+      }
+      if (divider >= DIVIDER_FLASH68) divider = 0;
+      break;
+
+    case 7:
+      if (fade) {
+        fadeToBlack(16);
+        fade--;
+      }
+      else {
+        printDice(result1, PATTERN_LENGTH, 0, colorYellow);
+        printDice(result2, PATTERN_LENGTH, PATTERN_LENGTH, colorYellow);
+        fade = FADE_STEPS;
+      }
+      ring.show();
+
+      if (divider++ == 0) {
+        showVal(sum, toggle);
+        toggle = !toggle;
+      }
+      if (divider >= DIVIDER_FLASH7) divider = 0;
+      break;
+
+    default:
+      break;
+  }
+}
+
 void printDice(uint8_t val, uint8_t maxPos, uint8_t offset, uint32_t color) {
   uint16_t p;
 
@@ -415,25 +404,25 @@ bool readButton(uint8_t pin) {
 }
 
 uint8_t beatsin8(uint16_t bpm, uint8_t low, uint8_t high, uint32_t time_offset, uint8_t phase_offset) {
-  // 60.000 ms pro Minute / BPM = Dauer eines vollen Taktes in ms
+  // 60.000 ms per minute / BPM = duration of one cycle in ms
   uint32_t ms_per_beat = 60000L / bpm;
 
-  // Aktuelle Zeit plus den gewünschten Zeit-Versatz berechnen
+  // current time
   uint32_t adjusted_time = millis() - time_offset;
 
-  // Position innerhalb des aktuellen Taktes ermitteln (Modulo-Überlauf)
+  // position within current cycle (modulo-overflow)
   uint32_t pos = adjusted_time % ms_per_beat;
 
-  // Zeit-Position sauber auf den Indexbereich 0-255 skalieren
+  // map time-position to index range
   uint8_t base_index = (pos * 255) / ms_per_beat;
 
-  // Phasenversatz hinzufügen (8-Bit Integer läuft automatisch bei 255 sauber auf 0 über)
+  // add phase shift (8-bit integer overflows at 255 to 0)
   uint8_t final_index = base_index + phase_offset;
 
-  // Den echten Sinuswert (0 bis 255) aus dem Flash-Speicher auslesen
+  // read sine value (0 bis 255) from flash
   uint8_t wave = pgm_read_byte(&(sin8_lut[final_index]));
 
-  // Welle auf das gewünschte Ziel-Fenster [low, high] skalieren
+  // map wave to target range
   uint16_t range = high - low;
 
 #ifdef SERIALDEBUG2
@@ -459,9 +448,9 @@ void fadeToBlack(uint8_t fadeValue) {
     b = (b * (255 - fadeValue)) >> 8;
 
 #ifdef SERIALDEBUG3
-  char buf[80];
-  sprintf(buf, "fadeToBlack: R: %u, G: %u, B: %u", r, g, b);
-  Serial.println(buf);
+    char buf[80];
+    sprintf(buf, "fadeToBlack: R: %u, G: %u, B: %u", r, g, b);
+    Serial.println(buf);
 #endif
 
     ring.setPixelColor(i, ring.Color(r, g, b));
