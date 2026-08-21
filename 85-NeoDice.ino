@@ -198,7 +198,7 @@ void loop()
 
         // animation for specific results
         handleAnimation();
-        
+
         if (currentTime > idleTime) state = DICE_CONFETTI;
         break;
 
@@ -462,18 +462,18 @@ void addGlitter(uint8_t chanceOfGlitter) {
     int pos = random(ring.numPixels());
     uint32_t current = ring.getPixelColor(pos);
 
-    // Extract RGB components using bitwise math
+    // extract RGB components using bitwise math
     uint8_t r = (current >> 16) & 0xFF;
     uint8_t g = (current >> 8) & 0xFF;
     uint8_t b = current & 0xFF;
 
-    // Add white with saturation cap at 255
-    r = (r + 255 > 255) ? 255 : r + 255; // effectively sets to white max
-    // Or to actually mix/add: r = qadd8(r, 255) if using FastLED lib8tion,
-    // but with pure standard Arduino integer math:
+    // add white with saturation cap at 255
+    r = (r + 255 > 255) ? 255 : r + 255;
+
+    // with pure integer math:
     r = (uint16_t)r + 255 > 255 ? 255 : r + 255; // simplified below:
 
-    // Cleaner additive white assignment:
+    // cleaner additive white assignment:
     ring.setPixelColor(pos, ring.Color(min(255, r + 255), min(255, g + 255), min(255, b + 255)));
   }
 }
